@@ -1,12 +1,12 @@
-import streamlit as st
+st.markdown("""
+## 🎵 Sistem Rekomendasi Lagu Spotify
 
-st.set_page_config(page_title="Sistem Rekomendasi Lagu", layout="wide")
+Selamat datang di dashboard rekomendasi lagu berbasis data mining!
 
-st.title("🎧 Sistem Rekomendasi Lagu")
-st.write("""
-Selamat datang di dashboard rekomendasi lagu berbasis data mining!  
-Silakan gunakan sidebar kiri untuk menjelajahi halaman:
-- EDA & Dataset
-- Model & Clustering
-- Form Rekomendasi
+Gunakan sidebar di kiri untuk menjelajahi halaman:
+
+- 📊 **EDA & Dataset**: Menampilkan eksplorasi data dan visualisasi
+- 🤖 **Model & Clustering**: Klasterisasi lagu berdasarkan fitur
+- 🔍 **Prediksi Cluster Lagu**: Lihat lagu termasuk ke cluster mana
+- 🎧 **Rekomendasi Lagu Mirip**: Temukan lagu-lagu yang mirip dengan favoritmu
 """)
