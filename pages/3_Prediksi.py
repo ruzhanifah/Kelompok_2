@@ -1,23 +1,28 @@
 import streamlit as st
 import pandas as pd
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.cluster import KMeans
 
-st.title("🎶 Rekomendasi Lagu")
-
+# Load dataset dan model
 df = pd.read_csv("data/spotify_dataset.csv")
-feature_cols = ['danceability', 'energy', 'valence', 'tempo']
+features = ['popularity', 'duration_ms', 'total_tracks', 'position']
+df_features = df[features]
 
-song_titles = df['title'].unique()
-selected_song = st.selectbox("Pilih lagu favorit kamu:", song_titles)
+kmeans = KMeans(n_clusters=5, random_state=42, n_init=10)
+df['cluster'] = kmeans.fit_predict(df_features)
 
-if selected_song:
-    song_vector = df[df['title'] == selected_song][feature_cols].values
-    all_vectors = df[feature_cols].values
-    sim_scores = cosine_similarity(song_vector, all_vectors)[0]
-    
-    df['similarity'] = sim_scores
-    rekomendasi = df.sort_values(by='similarity', ascending=False).head(6)[['title', 'artist', 'similarity']]
-    rekomendasi = rekomendasi[df['title'] != selected_song]
+st.title("🔮 Prediksi Cluster Lagu")
 
-    st.subheader("Lagu yang Direkomendasikan:")
-    st.dataframe(rekomendasi.reset_index(drop=True))
+# Pilih lagu dari daftar
+selected_song = st.selectbox("Pilih lagu:", df['song'].unique())
+
+# Temukan baris lagu tersebut
+song_data = df[df['song'] == selected_song]
+
+if not song_data.empty:
+    cluster = song_data.iloc[0]['cluster']
+    st.success(f"Lagu **{selected_song}** termasuk ke dalam Cluster **{int(cluster)}** 🎧")
+
+    st.markdown("### Info Lagu:")
+    st.write(song_data[['artist', 'popularity', 'duration_ms', 'position', 'cluster']])
+else:
+    st.error("Lagu tidak ditemukan dalam dataset.")
