@@ -10,11 +10,3 @@ Silakan gunakan sidebar kiri untuk menjelajahi halaman:
 - Model & Clustering
 - Form Rekomendasi
 """)
-
-import os
-import gdown
-
-DATA_PATH = "data/spotify_dataset.csv"
-if not os.path.exists(DATA_PATH):
-    url = "https://drive.google.com/file/d/12zWRkDSkljpMypSDtbh0V8jj630LKTOP/view?usp=drive_link"
-    gdown.download(url, DATA_PATH, quiet=False)
