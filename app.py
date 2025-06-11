@@ -1,6 +1,10 @@
-st.markdown("""
-## 🎵 Sistem Rekomendasi Lagu Spotify
+import streamlit as st
 
+st.set_page_config(page_title="Sistem Rekomendasi Lagu", page_icon="🎵")
+
+st.title("🎵 Sistem Rekomendasi Lagu Spotify")
+
+st.markdown("""
 Selamat datang di dashboard rekomendasi lagu berbasis data mining!
 
 Gunakan sidebar di kiri untuk menjelajahi halaman:
