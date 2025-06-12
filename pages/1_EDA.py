@@ -1,20 +1,8 @@
 import streamlit as st
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+from utils.load_data import load_dataset
 
-st.title("🔍 EDA dan Karakteristik Dataset")
+df = load_dataset()
 
-# Load dataset
-df = pd.read_csv("data/spotify_dataset.csv")
-
-st.subheader("Cuplikan Dataset")
-st.dataframe(df.head())
-
-st.subheader("Statistik Deskriptif")
-st.write(df.describe())
-
-st.subheader("Korelasi Fitur Audio")
-fig, ax = plt.subplots()
-sns.heatmap(df.select_dtypes(include='number').corr(), annot=True, cmap="coolwarm", ax=ax)
-st.pyplot(fig)
+st.title("📊 EDA & Dataset")
+st.write(df.head())
