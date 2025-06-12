@@ -1,67 +1,57 @@
 import streamlit as st
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.decomposition import PCA
 
 from utils.load_data import load_dataset
 
-st.title("🤖 Model & Clustering Lagu Spotify")
+st.title("🤖 Model & Clustering")
 
 # Load dataset
 df = load_dataset()
 
-# Tampilkan nama kolom untuk debugging (bisa dihapus nanti)
-# st.write("Kolom dalam dataset:", df.columns.tolist())
-
-# Ubah nama kolom agar konsisten (huruf kecil & underscore)
-df.columns = df.columns.str.lower().str.replace(" ", "_")
-
-# Fitur yang digunakan untuk clustering
+# Pilih fitur numerik untuk clustering
 features = [
-    'danceability', 'energy', 'loudness', 'speechiness',
-    'acousticness', 'instrumentalness', 'liveness',
-    'valence', 'tempo'
+    'danceability', 'energy', 'key', 'loudness', 'mode',
+    'speechiness', 'acousticness', 'instrumentalness',
+    'liveness', 'valence', 'tempo'
 ]
 
-# Pastikan semua kolom fitur tersedia
-missing_cols = [col for col in features if col not in df.columns]
-if missing_cols:
-    st.error(f"Kolom berikut tidak ditemukan di dataset: {missing_cols}")
+# Pastikan semua fitur tersedia
+if not all(feature in df.columns for feature in features):
+    st.error("Beberapa fitur tidak ditemukan di dataset. Pastikan dataset sudah benar.")
+    st.write("Fitur yang dibutuhkan:", features)
+    st.write("Kolom yang tersedia:", df.columns.tolist())
     st.stop()
 
-# Ambil hanya kolom fitur
-df_features = df[features]
+df_features = df[features].dropna()
 
-# Normalisasi fitur
+# Standarisasi data
 scaler = StandardScaler()
-scaled_features = scaler.fit_transform(df_features)
+X_scaled = scaler.fit_transform(df_features)
 
-# Slider jumlah cluster
-k = st.slider("Pilih jumlah cluster (K)", 2, 10, 4)
+# Pilih jumlah cluster
+n_clusters = st.slider("Pilih jumlah cluster", min_value=2, max_value=10, value=4)
 
-# Buat model KMeans
-model = KMeans(n_clusters=k, random_state=42, n_init=10)
-cluster_labels = model.fit_predict(scaled_features)
+# KMeans clustering
+kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+df['Cluster'] = kmeans.fit_predict(X_scaled)
 
-# Tambahkan hasil cluster ke DataFrame
-df['cluster'] = cluster_labels
-
-# PCA untuk visualisasi 2D
+# Visualisasi cluster
+st.subheader("Visualisasi Cluster (2D PCA)")
+from sklearn.decomposition import PCA
 pca = PCA(n_components=2)
-pca_result = pca.fit_transform(scaled_features)
-df['pca1'] = pca_result[:, 0]
-df['pca2'] = pca_result[:, 1]
+components = pca.fit_transform(X_scaled)
+df['pca1'] = components[:, 0]
+df['pca2'] = components[:, 1]
 
-# Visualisasi Cluster
-st.subheader("📊 Visualisasi Cluster (PCA)")
-fig, ax = plt.subplots()
-sns.scatterplot(data=df, x='pca1', y='pca2', hue='cluster', palette='tab10', ax=ax)
-plt.title("Visualisasi Cluster Lagu")
-st.pyplot(fig)
+plt.figure(figsize=(10, 6))
+sns.scatterplot(x='pca1', y='pca2', hue='Cluster', data=df, palette='tab10')
+plt.title("Visualisasi Cluster dengan PCA")
+st.pyplot(plt)
 
-# Tampilkan hasil klasterisasi
-st.subheader("📝 Hasil Klasterisasi Lagu")
-st.dataframe(df[['track_name', 'artist_name', 'cluster'] + features])
+# Tampilkan data hasil clustering
+st.subheader("Contoh Hasil Klasterisasi")
+st.dataframe(df[['name', 'artist', 'Cluster'] + features].head(20))
