@@ -4,13 +4,20 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.decomposition import PCA
 
 from utils.load_data import load_dataset
 
-st.title("🤖 Model & Clustering Lagu")
+st.title("🤖 Model & Clustering Lagu Spotify")
 
-# Load data
+# Load dataset
 df = load_dataset()
+
+# Tampilkan nama kolom untuk debugging (bisa dihapus nanti)
+# st.write("Kolom dalam dataset:", df.columns.tolist())
+
+# Ubah nama kolom agar konsisten (huruf kecil & underscore)
+df.columns = df.columns.str.lower().str.replace(" ", "_")
 
 # Fitur yang digunakan untuk clustering
 features = [
@@ -19,38 +26,42 @@ features = [
     'valence', 'tempo'
 ]
 
-# Pastikan semua fitur tersedia
+# Pastikan semua kolom fitur tersedia
 missing_cols = [col for col in features if col not in df.columns]
 if missing_cols:
     st.error(f"Kolom berikut tidak ditemukan di dataset: {missing_cols}")
     st.stop()
 
-# Preprocessing
+# Ambil hanya kolom fitur
 df_features = df[features]
+
+# Normalisasi fitur
 scaler = StandardScaler()
 scaled_features = scaler.fit_transform(df_features)
 
-# KMeans clustering
+# Slider jumlah cluster
 k = st.slider("Pilih jumlah cluster (K)", 2, 10, 4)
-model = KMeans(n_clusters=k, random_state=42)
-df['Cluster'] = model.fit_predict(scaled_features)
 
-st.subheader("📊 Visualisasi Cluster")
+# Buat model KMeans
+model = KMeans(n_clusters=k, random_state=42, n_init=10)
+cluster_labels = model.fit_predict(scaled_features)
 
-# Visualisasi pakai 2D PCA (opsional)
-try:
-    from sklearn.decomposition import PCA
-    pca = PCA(n_components=2)
-    pca_result = pca.fit_transform(scaled_features)
-    df['PCA1'] = pca_result[:, 0]
-    df['PCA2'] = pca_result[:, 1]
+# Tambahkan hasil cluster ke DataFrame
+df['cluster'] = cluster_labels
 
-    fig, ax = plt.subplots()
-    sns.scatterplot(data=df, x='PCA1', y='PCA2', hue='Cluster', palette='tab10', ax=ax)
-    st.pyplot(fig)
-except:
-    st.warning("Gagal visualisasi PCA. Pastikan `scikit-learn` dan `matplotlib` sudah terpasang.")
+# PCA untuk visualisasi 2D
+pca = PCA(n_components=2)
+pca_result = pca.fit_transform(scaled_features)
+df['pca1'] = pca_result[:, 0]
+df['pca2'] = pca_result[:, 1]
 
-# Tampilkan data hasil clustering
-st.subheader("📝 Hasil Klasterisasi")
-st.dataframe(df[['track_name', 'artist_name', 'Cluster'] + features])
+# Visualisasi Cluster
+st.subheader("📊 Visualisasi Cluster (PCA)")
+fig, ax = plt.subplots()
+sns.scatterplot(data=df, x='pca1', y='pca2', hue='cluster', palette='tab10', ax=ax)
+plt.title("Visualisasi Cluster Lagu")
+st.pyplot(fig)
+
+# Tampilkan hasil klasterisasi
+st.subheader("📝 Hasil Klasterisasi Lagu")
+st.dataframe(df[['track_name', 'artist_name', 'cluster'] + features])
