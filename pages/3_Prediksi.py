@@ -1,28 +1,47 @@
 import streamlit as st
 import pandas as pd
 from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+import numpy as np
 
-# Load dataset dan model
-df = pd.read_csv("data/spotify_dataset.csv")
-features = ['popularity', 'duration_ms', 'total_tracks', 'position']
-df_features = df[features]
+from utils.load_data import load_dataset
 
-kmeans = KMeans(n_clusters=5, random_state=42, n_init=10)
-df['cluster'] = kmeans.fit_predict(df_features)
+st.title("🔍 Prediksi Cluster Lagu")
 
-st.title("🔮 Prediksi Cluster Lagu")
+# Load dataset
+df = load_dataset()
 
-# Pilih lagu dari daftar
-selected_song = st.selectbox("Pilih lagu:", df['song'].unique())
+# Definisikan fitur numerik
+features = [
+    'danceability', 'energy', 'key', 'loudness', 'mode',
+    'speechiness', 'acousticness', 'instrumentalness',
+    'liveness', 'valence', 'tempo'
+]
 
-# Temukan baris lagu tersebut
-song_data = df[df['song'] == selected_song]
+# Pastikan semua fitur ada
+if not all(f in df.columns for f in features):
+    st.error("Beberapa fitur tidak ditemukan di dataset.")
+    st.write("Kolom tersedia:", df.columns.tolist())
+    st.stop()
 
-if not song_data.empty:
-    cluster = song_data.iloc[0]['cluster']
-    st.success(f"Lagu **{selected_song}** termasuk ke dalam Cluster **{int(cluster)}** 🎧")
+# Standarisasi data
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(df[features].dropna())
 
-    st.markdown("### Info Lagu:")
-    st.write(song_data[['artist', 'popularity', 'duration_ms', 'position', 'cluster']])
-else:
-    st.error("Lagu tidak ditemukan dalam dataset.")
+# Melatih model
+kmeans = KMeans(n_clusters=4, random_state=42)
+kmeans.fit(X_scaled)
+
+# Form input pengguna
+st.subheader("Masukkan Fitur Lagu")
+input_data = {}
+for feature in features:
+    input_data[feature] = st.slider(feature, float(df[feature].min()), float(df[feature].max()), float(df[feature].mean()))
+
+# Konversi ke DataFrame dan standarisasi
+input_df = pd.DataFrame([input_data])
+input_scaled = scaler.transform(input_df)
+
+# Prediksi cluster
+predicted_cluster = kmeans.predict(input_scaled)[0]
+st.success(f"Lagu ini diprediksi masuk ke dalam **Cluster {predicted_cluster}**")
