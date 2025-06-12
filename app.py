@@ -32,17 +32,32 @@ except Exception as e:
 st.title("🎵 Sistem Rekomendasi Lagu Spotify")
 
 st.markdown("""
-Selamat datang di dashboard rekomendasi lagu berbasis data mining!
+### Halo! 👋  
+Kami dari **Kelompok 2** dengan bangga mempersembahkan sebuah dashboard interaktif:  
+**Sistem Rekomendasi Lagu berbasis Data Mining!** 🎶✨  
 
-Gunakan sidebar di kiri untuk menjelajahi halaman:
-
-- 📊 **EDA & Dataset**: Menampilkan eksplorasi data dan visualisasi
-- 🤖 **Model & Clustering**: Klasterisasi lagu berdasarkan fitur
-- 🔍 **Prediksi Cluster Lagu**: Lihat lagu termasuk ke cluster mana
-- 🎧 **Rekomendasi Lagu Mirip**: Temukan lagu-lagu yang mirip dengan favoritmu
+Melalui proyek ini, kamu dapat menjelajahi data musik, melihat hasil klasterisasi, memprediksi cluster lagu, dan menemukan lagu-lagu yang mirip dengan favoritmu.
 """)
 
-# ========== TAMPILKAN CUCI DATA ========== #
+st.markdown("""
+#### 🔍 Gunakan sidebar di kiri untuk menjelajahi halaman:
+- 📊 **EDA & Dataset**: Menampilkan eksplorasi data dan visualisasi  
+- 🤖 **Model & Clustering**: Klasterisasi lagu berdasarkan fitur  
+- 🔍 **Prediksi Cluster Lagu**: Lihat lagu termasuk ke cluster mana  
+- 🎧 **Rekomendasi Lagu Mirip**: Temukan lagu-lagu yang mirip dengan favoritmu  
+""")
+
+st.markdown("---")
+
+st.markdown("""
+#### 👥 Anggota Kelompok 2:
+- 🧑‍💻 Renita Dwijayanti (2304030005)  
+- 🧑‍💻 Ikhsan Nur Iman (2304030012)  
+- 🧑‍💻 Aisyah Sekar Dinanti (2304030012)  
+- 🧑‍💻 Fairuz Hajar Hanifah (4111422069)  
+""")
+
+# ========== TAMPILKAN CONTOH DATASET ========== #
 if dataset_loaded:
     st.markdown("### Contoh Isi Dataset:")
     st.dataframe(df.head())
